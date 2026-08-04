@@ -1,365 +1,179 @@
 <!DOCTYPE html>
-
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Editor de Cartas Matemáticas</title>
+  <meta charset="UTF-8">
+  <title>Minha Carta</title>
+  
+  <!-- Importando a biblioteca html2canvas para conseguir exportar o PNG -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
-<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;700&family=Fredoka:wght@400;600&family=Nunito:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    /* Estilos gerais da página */
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background-color: #2c3e50;
+      margin-top: 50px;
+    }
 
-<style>
-:root{
-  --card-w: 315px;
-  --card-h: 440px;
-}
+    /* Estilo dos botões */
+    .controles {
+      margin-bottom: 30px;
+      display: flex;
+      gap: 15px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      border: none;
+      border-radius: 8px;
+      background-color: #f1c40f;
+      color: #333;
+      transition: 0.2s;
+    }
+    button:hover {
+      background-color: #f39c12;
+    }
 
-*{box-sizing:border-box}
-body{
-  margin:0;
-  font-family:Arial, Helvetica, sans-serif;
-  background:#ececec;
-  display:flex;
-  min-height:100vh;
-}
+    /* -------------------------------------------
+       ESTRUTURA 3D DA CARTA
+    ------------------------------------------- */
+    .cena-carta {
+      width: 250px;
+      height: 350px;
+      perspective: 1000px; /* Dá a sensação de profundidade no giro */
+    }
 
-.sidebar{
-  width:340px;
-  background:#ffffff;
-  padding:20px;
-  overflow:auto;
-  border-right:1px solid #ddd;
-}
+    .carta {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transition: transform 0.6s;
+      transform-style: preserve-3d; /* Mantém as frentes e versos no espaço 3D */
+    }
 
-.sidebar h2{
-  margin-top:0;
-}
+    /* Classe que o JavaScript vai adicionar para girar a carta */
+    .carta.virada {
+      transform: rotateY(180deg);
+    }
 
-.control{
-  margin-bottom:16px;
-}
+    /* Configuração padrão para os dois lados da carta */
+    .face {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden; /* Esconde o lado que está de costas */
+      border-radius: 15px;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
 
-label{
-  display:block;
-  font-weight:bold;
-  margin-bottom:6px;
-}
+    /* A frente da carta */
+    .card-front {
+      background-color: #ecf0f1;
+      color: #333;
+      font-size: 24px;
+      font-weight: bold;
+      border: 8px solid #bdc3c7;
+    }
 
-input[type=text],
-input[type=number],
-select{
-  width:100%;
-  padding:10px;
-  border:1px solid #ccc;
-  border-radius:8px;
-  font-size:16px;
-}
+    /* -------------------------------------------
+       SEU CÓDIGO DO VERSO (ESTILIZADO)
+    ------------------------------------------- */
+    .card-back {
+      background-color: #111;
+      transform: rotateY(180deg); /* O verso já começa "virado" 180 graus de costas */
+      border: 8px solid #34495e;
+    }
 
-input[type=color]{
-  width:100%;
-  height:44px;
-  border:none;
-  background:none;
-}
+    .back-bg {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      /* Criando um fundo desenhado com CSS */
+      background: repeating-linear-gradient(
+        45deg,
+        #2c3e50,
+        #2c3e50 10px,
+        #34495e 10px,
+        #34495e 20px
+      );
+    }
 
-button{
-  width:100%;
-  padding:12px;
-  border:none;
-  border-radius:10px;
-  background:#2563eb;
-  color:white;
-  font-size:16px;
-  cursor:pointer;
-  margin-top:8px;
-}
+    .back-overlay {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      /* Sombra interna para dar volume */
+      box-shadow: inset 0 0 50px rgba(0,0,0,0.8);
+    }
 
-button.secondary{
-  background:#6b7280;
-}
-
-.preview{
-  flex:1;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding:30px;
-}
-
-.card{
-  width:var(--card-w);
-  height:var(--card-h);
-  border-radius:24px;
-  background:white;
-  position:relative;
-  overflow:hidden;
-  box-shadow:0 18px 40px rgba(0,0,0,.25);
-  border:8px solid #ff7aa2;
-}
-
-.border-pattern{
-  position:absolute;
-  inset:0;
-  pointer-events:none;
-}
-
-.border-pattern::before,
-.border-pattern::after{
-  content:'';
-  position:absolute;
-  inset:0;
-}
-
-.border-pattern::before{
-  background:
-    radial-gradient(circle at 12% 10%, #ff4d8d 0 10px, transparent 11px),
-    radial-gradient(circle at 88% 14%, #ffd166 0 10px, transparent 11px),
-    radial-gradient(circle at 18% 88%, #06d6a0 0 10px, transparent 11px),
-    radial-gradient(circle at 84% 84%, #118ab2 0 10px, transparent 11px),
-    radial-gradient(circle at 50% 6%, #ff9f1c 0 8px, transparent 9px),
-    radial-gradient(circle at 6% 50%, #8338ec 0 8px, transparent 9px),
-    radial-gradient(circle at 94% 50%, #ef476f 0 8px, transparent 9px),
-    radial-gradient(circle at 50% 94%, #3a86ff 0 8px, transparent 9px);
-}
-
-.border-pattern::after{
-  inset:10px;
-  border:3px solid rgba(255,122,162,.45);
-  border-radius:18px;
-}
-
-.card-front,
-.card-back{
-  position:absolute;
-  inset:0;
-}
-
-.card-back{
-  display:none;
-}
-
-.art{
-  position:absolute;
-  top:74px;
-  left:26px;
-  right:26px;
-  height:200px;
-  border-radius:18px;
-  background:#f3f4f6 center/cover no-repeat;
-  border:2px solid #e5e7eb;
-}
-
-.big-number{
-  position:absolute;
-  bottom:78px;
-  left:0;
-  right:0;
-  text-align:center;
-  font-size:150px;
-  line-height:1;
-  font-family:'Baloo 2', cursive;
-  font-weight:700;
-  color:#ff3f8e;
-  text-shadow:0 3px 0 rgba(0,0,0,.08);
-}
-
-.symbol{
-  position:absolute;
-  top:18px;
-  right:18px;
-  width:48px;
-  height:48px;
-  border-radius:14px;
-  background:#ffffff;
-  border:2px solid #ffd166;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:28px;
-  font-weight:700;
-  color:#ff7aa2;
-}
-
-.name{
-  position:absolute;
-  bottom:18px;
-  left:18px;
-  right:18px;
-  text-align:center;
-  font-size:22px;
-  font-weight:700;
-  letter-spacing:.5px;
-}
-
-.back-bg{
-  position:absolute;
-  inset:0;
-  background:#ffffff center/cover no-repeat;
-}
-
-.back-overlay{
-  position:absolute;
-  inset:18px;
-  border-radius:18px;
-  border:3px dashed rgba(37,99,235,.25);
-}
-
-.back-symbol{
-  position:absolute;
-  inset:0;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:120px;
-  color:rgba(37,99,235,.16);
-  font-family:'Fredoka', sans-serif;
-  font-weight:600;
-}
-</style>
-
+    .back-symbol {
+      position: relative;
+      font-size: 100px;
+      color: #f1c40f;
+      text-shadow: 2px 2px 10px rgba(0,0,0,0.8);
+      z-index: 2; /* Garante que o símbolo fique acima do fundo */
+    }
+  </style>
 </head>
 <body>
 
-<div class="sidebar">
-  <h2>Editor da Carta</h2>
-
-  <div class="control">
-    <label>Número</label>
-    <input id="numberInput" type="number" value="2">
+  <!-- Os botões que antes eram apenas texto -->
+  <div class="controles">
+    <button onclick="virarCarta()">Mostrar Verso</button>
+    <button onclick="exportarPNG()">Exportar PNG</button>
   </div>
 
-  <div class="control">
-    <label>Nome</label>
-    <input id="nameInput" type="text" value="ZOLTAN">
-  </div>
+  <!-- A cena 3D -->
+  <div class="cena-carta">
+    <div class="carta" id="cartaContainer">
+      
+      <!-- Lado da Frente -->
+      <div class="face card-front">
+        Frente da Carta
+      </div>
 
-  <div class="control">
-    <label>Símbolo</label>
-    <select id="symbolInput">
-      <option>+</option>
-      <option>-</option>
-      <option>×</option>
-      <option>÷</option>
-      <option>=</option>
-    </select>
-  </div>
+      <!-- O SEU CÓDIGO DO VERSO -->
+      <div class="face card-back" id="back">
+        <div class="back-bg" id="backArt"></div>
+        <div class="back-overlay"></div>
+        <div class="back-symbol">+</div>
+      </div>
 
-  <div class="control">
-    <label>Fonte</label>
-    <select id="fontInput">
-      <option value="'Baloo 2', cursive">Baloo 2</option>
-      <option value="'Fredoka', sans-serif">Fredoka</option>
-      <option value="'Nunito', sans-serif">Nunito</option>
-      <option value="Arial, sans-serif">Arial</option>
-    </select>
-  </div>
-
-  <div class="control">
-    <label>Cor do número</label>
-    <input id="colorInput" type="color" value="#ff3f8e">
-  </div>
-
-  <div class="control">
-    <label>Arte da frente</label>
-    <input id="frontUpload" type="file" accept="image/*">
-  </div>
-
-  <div class="control">
-    <label>Arte do verso</label>
-    <input id="backUpload" type="file" accept="image/*">
-  </div>
-
-<button id="toggleBtn">Mostrar Verso</button> <button id="downloadBtn" class="secondary">Exportar PNG</button>
-
-</div>
-
-<div class="preview">
-  <div class="card" id="card">
-    <div class="card-front" id="front">
-      <div class="border-pattern"></div>
-      <div class="symbol" id="symbol">+</div>
-      <div class="art" id="frontArt"></div>
-      <div class="big-number" id="number">2</div>
-      <div class="name" id="name">ZOLTAN</div>
     </div>
-
-```
-<div class="card-back" id="back">
-  <div class="back-bg" id="backArt"></div>
-  <div class="back-overlay"></div>
-  <div class="back-symbol">+</div>
-</div>
-```
-
   </div>
-</div>
 
-<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script>
+    // Função para virar a carta
+    function virarCarta() {
+      const carta = document.getElementById('cartaContainer');
+      carta.classList.toggle('virada');
+    }
 
-<script>
-const numberEl = document.getElementById('number');
-const nameEl = document.getElementById('name');
-const symbolEl = document.getElementById('symbol');
-const frontArt = document.getElementById('frontArt');
-const backArt = document.getElementById('backArt');
-
-document.getElementById('numberInput').addEventListener('input', e => {
-  numberEl.textContent = e.target.value || '';
-});
-
-document.getElementById('nameInput').addEventListener('input', e => {
-  nameEl.textContent = e.target.value.toUpperCase();
-});
-
-document.getElementById('symbolInput').addEventListener('change', e => {
-  symbolEl.textContent = e.target.value;
-  document.querySelector('.back-symbol').textContent = e.target.value;
-});
-
-document.getElementById('fontInput').addEventListener('change', e => {
-  numberEl.style.fontFamily = e.target.value;
-  nameEl.style.fontFamily = e.target.value;
-});
-
-document.getElementById('colorInput').addEventListener('input', e => {
-  numberEl.style.color = e.target.value;
-});
-
-function loadImage(input, target){
-  const file = input.files[0];
-  if(!file) return;
-  const reader = new FileReader();
-  reader.onload = ev => {
-    target.style.backgroundImage = `url('${ev.target.result}')`;
-  };
-  reader.readAsDataURL(file);
-}
-
-document.getElementById('frontUpload').addEventListener('change', e => loadImage(e.target, frontArt));
-document.getElementById('backUpload').addEventListener('change', e => loadImage(e.target, backArt));
-
-let showingBack = false;
-const front = document.getElementById('front');
-const back = document.getElementById('back');
-
-document.getElementById('toggleBtn').addEventListener('click', () => {
-  showingBack = !showingBack;
-  front.style.display = showingBack ? 'none' : 'block';
-  back.style.display = showingBack ? 'block' : 'none';
-  document.getElementById('toggleBtn').textContent = showingBack ? 'Mostrar Frente' : 'Mostrar Verso';
-});
-
-document.getElementById('downloadBtn').addEventListener('click', async () => {
-  const canvas = await html2canvas(document.getElementById('card'), {
-    backgroundColor: null,
-    scale: 3
-  });
-  const link = document.createElement('a');
-  link.download = showingBack ? 'carta-verso.png' : 'carta-frente.png';
-  link.href = canvas.toDataURL('image/png');
-  link.click();
-});
-</script>
-
+    // Função para baixar a imagem usando a biblioteca html2canvas
+    function exportarPNG() {
+      // Capturamos especificamente a div com id="back"
+      const elementoParaBaixar = document.getElementById('back');
+      
+      html2canvas(elementoParaBaixar, {
+        backgroundColor: null, // Mantém o fundo transparente se houver bordas arredondadas
+        scale: 2 // Aumenta a resolução da imagem baixada
+      }).then(canvas => {
+        // Cria um link temporário e simula o clique para baixar
+        const link = document.createElement('a');
+        link.download = 'verso-da-carta.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      });
+    }
+  </script>
 </body>
 </html>
