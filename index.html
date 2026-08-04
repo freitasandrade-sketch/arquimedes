@@ -83,7 +83,82 @@
       font-weight: bold;
       border: 8px solid #bdc3c7;
     }
+.card-front{
+    background:#ffffff;
+    border:8px solid #ff7aa2;
+    position:relative;
+}
 
+.border-pattern{
+    position:absolute;
+    inset:0;
+    pointer-events:none;
+}
+
+.border-pattern::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:
+      radial-gradient(circle at 12% 10%, #ff4d8d 0 10px, transparent 11px),
+      radial-gradient(circle at 88% 14%, #ffd166 0 10px, transparent 11px),
+      radial-gradient(circle at 18% 88%, #06d6a0 0 10px, transparent 11px),
+      radial-gradient(circle at 84% 84%, #118ab2 0 10px, transparent 11px);
+}
+
+.art{
+    position:absolute;
+    top:55px;
+    left:20px;
+    right:20px;
+    height:170px;
+    border-radius:18px;
+    background:#f3f4f6 center/cover no-repeat;
+    border:2px solid #e5e7eb;
+}
+
+.big-number{
+    position:absolute;
+
+    /* Centralização perfeita */
+    left:50%;
+    top:72%;
+    transform:translate(-50%, -50%);
+
+    font-size:140px;
+    line-height:1;
+    font-family:'Arial', sans-serif;
+    font-weight:900;
+    color:#ff3f8e;
+    text-shadow:0 3px 0 rgba(0,0,0,.08);
+}
+
+.name{
+    position:absolute;
+    bottom:18px;
+    left:18px;
+    right:18px;
+    text-align:center;
+    font-size:22px;
+    font-weight:bold;
+}
+
+.symbol{
+    position:absolute;
+    top:15px;
+    right:15px;
+    width:46px;
+    height:46px;
+    border-radius:12px;
+    background:#fff;
+    border:2px solid #ffd166;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:26px;
+    font-weight:bold;
+    color:#ff7aa2;
+}
     /* -------------------------------------------
        SEU CÓDIGO DO VERSO (ESTILIZADO)
     ------------------------------------------- */
@@ -137,10 +212,21 @@
     <div class="carta" id="cartaContainer">
       
       <!-- Lado da Frente -->
-      <div class="face card-front">
-        Frente da Carta
-      </div>
+    <div class="face card-front" id="front">
+    <div class="border-pattern"></div>
 
+    <!-- Símbolo no canto -->
+    <div class="symbol" id="symbol">+</div>
+
+    <!-- Área da imagem -->
+    <div class="art" id="frontArt"></div>
+
+    <!-- Número centralizado -->
+    <div class="big-number" id="number">2</div>
+
+    <!-- Nome do personagem -->
+    <div class="name" id="name">ZOLTAN</div>
+</div>
       <!-- O SEU CÓDIGO DO VERSO -->
       <div class="face card-back" id="back">
         <div class="back-bg" id="backArt"></div>
