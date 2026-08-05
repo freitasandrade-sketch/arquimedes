@@ -142,12 +142,12 @@
       overflow: hidden;
     }
 
-    /* A frente da carta (AGORA USANDO VARIÁVEIS CSS) */
+    /* A frente da carta */
     .card-front {
       background: #ffffff;
       border: 8px solid var(--cor-principal);
       position: relative;
-      font-family: var(--fonte-carta); /* Fonte dinâmica */
+      font-family: var(--fonte-carta);
     }
 
     .border-pattern {
@@ -227,7 +227,7 @@
       justify-content: center;
       font-size: 26px;
       font-weight: bold;
-      color: var(--cor-principal); /* Cor dinâmica */
+      color: var(--cor-principal);
     }
 
     /* O VERSO DA CARTA */
@@ -348,17 +348,14 @@
   <script>
     // Função que atualiza a carta em tempo real conforme o painel é alterado
     function atualizarCarta() {
-      // Atualiza os textos
       document.getElementById('name').innerText = document.getElementById('inputNome').value;
       document.getElementById('number').innerText = document.getElementById('inputNumero').value;
       document.getElementById('symbol').innerText = document.getElementById('inputSimbolo').value;
 
-      // Atualiza a cor (usando as Variáveis CSS)
       const cor = document.getElementById('inputCor').value;
       document.documentElement.style.setProperty('--cor-principal', cor);
       document.documentElement.style.setProperty('--cor-texto', cor);
 
-      // Atualiza a fonte
       const fonte = document.getElementById('inputFonte').value;
       document.documentElement.style.setProperty('--fonte-carta', fonte);
     }
@@ -376,27 +373,36 @@
       }
     }
 
-    // Função para baixar a imagem usando html-to-image (suporta degradê no texto perfeitamente)
+    // Função de exportação com alta resolução e prevenção de artefatos 3D
     function exportarPNG() {
       const cartaContainer = document.getElementById('cartaContainer');
       const estaVirada = cartaContainer.classList.contains('virada');
-      
-      // Escolhe a div certa para exportar ('back' ou 'front')
+
       const idParaBaixar = estaVirada ? 'back' : 'front';
-      const elementoParaBaixar = document.getElementById(idParaBaixar);
-      
-      // htmlToImage tira a foto com suporte a recursos CSS avançados
-      htmlToImage.toPng(elementoParaBaixar, { pixelRatio: 4 }) // pixelRatio: 2 garante alta resolução
-        .then(function (dataUrl) {
-          const link = document.createElement('a');
-          link.download = estaVirada ? 'verso-da-carta.png' : 'frente-da-carta.png';
-          link.href = dataUrl;
-          link.click();
-        })
-        .catch(function (error) {
-          console.error('Erro ao gerar a imagem:', error);
-          alert('Houve um erro ao exportar a carta.');
-        });
+      const elemento = document.getElementById(idParaBaixar);
+
+      // Evita artefatos do transform 3D durante a captura
+      const transformOriginal = elemento.style.transform;
+      elemento.style.transform = 'none';
+
+      htmlToImage.toPng(elemento, {
+        pixelRatio: 4,
+        cacheBust: true,
+        backgroundColor: null
+      }).then((dataUrl) => {
+        elemento.style.transform = transformOriginal;
+
+        const link = document.createElement('a');
+        link.download = estaVirada
+          ? 'verso-da-carta.png'
+          : 'frente-da-carta.png';
+        link.href = dataUrl;
+        link.click();
+      }).catch((error) => {
+        elemento.style.transform = transformOriginal;
+        console.error(error);
+        alert('Erro ao exportar a carta.');
+      });
     }
 
     // Função para carregar as imagens na carta
