@@ -2,25 +2,96 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Minha Carta</title>
+  <title>Minha Carta Interativa</title>
   
   <!-- Importando a biblioteca html2canvas para conseguir exportar o PNG -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
   <style>
+    /* -------------------------------------------
+       VARIÁVEIS CSS (Para mudar a cor e fonte dinamicamente)
+    ------------------------------------------- */
+    :root {
+      --cor-principal: #ff7aa2;
+      --cor-texto: #ff3f8e;
+      --fonte-carta: 'Arial', sans-serif;
+    }
+
     /* Estilos gerais da página */
     body {
       font-family: Arial, sans-serif;
       display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      background-color: #2c3e50;
+      margin: 0;
+      padding: 40px;
+      gap: 40px; /* Espaço entre o painel e a carta */
+    }
+
+    /* -------------------------------------------
+       PAINEL LATERAL
+    ------------------------------------------- */
+    .painel-lateral {
+      background-color: #34495e;
+      padding: 20px;
+      border-radius: 12px;
+      width: 300px;
+      color: white;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+    }
+
+    .painel-lateral h2 {
+      margin-top: 0;
+      font-size: 20px;
+      text-align: center;
+      border-bottom: 2px solid #2c3e50;
+      padding-bottom: 10px;
+    }
+
+    .grupo-input {
+      margin-bottom: 15px;
+    }
+
+    .grupo-input label {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 14px;
+      font-weight: bold;
+    }
+
+    .grupo-input input[type="text"],
+    .grupo-input input[type="number"],
+    .grupo-input select {
+      width: 100%;
+      padding: 8px;
+      border-radius: 6px;
+      border: none;
+      box-sizing: border-box; /* Garante que não passe da largura */
+      font-family: inherit;
+    }
+
+    .grupo-input input[type="color"] {
+      width: 100%;
+      height: 40px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      background: none;
+    }
+
+    /* -------------------------------------------
+       ÁREA DA CARTA E BOTÕES
+    ------------------------------------------- */
+    .area-carta {
+      display: flex;
       flex-direction: column;
       align-items: center;
-      background-color: #2c3e50;
-      margin-top: 50px;
     }
 
     /* Estilo dos botões */
     .controles {
-      margin-bottom: 30px;
+      margin-bottom: 20px;
       display: flex;
       gap: 15px;
     }
@@ -39,13 +110,11 @@
       background-color: #f39c12;
     }
 
-    /* -------------------------------------------
-       ESTRUTURA 3D DA CARTA
-    ------------------------------------------- */
+    /* ESTRUTURA 3D DA CARTA */
     .cena-carta {
       width: 250px;
       height: 350px;
-      perspective: 1000px; /* Dá a sensação de profundidade no giro */
+      perspective: 1000px;
     }
 
     .carta {
@@ -53,20 +122,18 @@
       height: 100%;
       position: relative;
       transition: transform 0.6s;
-      transform-style: preserve-3d; /* Mantém as frentes e versos no espaço 3D */
+      transform-style: preserve-3d;
     }
 
-    /* Classe que o JavaScript vai adicionar para girar a carta */
     .carta.virada {
       transform: rotateY(180deg);
     }
 
-    /* Configuração padrão para os dois lados da carta */
     .face {
       position: absolute;
       width: 100%;
       height: 100%;
-      backface-visibility: hidden; /* Esconde o lado que está de costas */
+      backface-visibility: hidden;
       border-radius: 15px;
       box-shadow: 0 10px 20px rgba(0,0,0,0.5);
       display: flex;
@@ -75,90 +142,86 @@
       overflow: hidden;
     }
 
-    /* A frente da carta */
-   
-.card-front{
-    background:#ffffff;
-    border:8px solid #ff7aa2;
-    position:relative;
-}
+    /* A frente da carta (AGORA USANDO VARIÁVEIS CSS) */
+    .card-front {
+      background: #ffffff;
+      border: 8px solid var(--cor-principal);
+      position: relative;
+      font-family: var(--fonte-carta); /* Fonte dinâmica */
+    }
 
-.border-pattern{
-    position:absolute;
-    inset:0;
-    pointer-events:none;
-}
+    .border-pattern {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
 
-.border-pattern::before{
-    content:"";
-    position:absolute;
-    inset:0;
-    background:
-      radial-gradient(circle at 12% 10%, #ff4d8d 0 10px, transparent 11px),
-      radial-gradient(circle at 88% 14%, #ffd166 0 10px, transparent 11px),
-      radial-gradient(circle at 18% 88%, #06d6a0 0 10px, transparent 11px),
-      radial-gradient(circle at 84% 84%, #118ab2 0 10px, transparent 11px);
-}
+    .border-pattern::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 12% 10%, #ff4d8d 0 10px, transparent 11px),
+        radial-gradient(circle at 88% 14%, #ffd166 0 10px, transparent 11px),
+        radial-gradient(circle at 18% 88%, #06d6a0 0 10px, transparent 11px),
+        radial-gradient(circle at 84% 84%, #118ab2 0 10px, transparent 11px);
+    }
 
-.art{
-    position:absolute;
-    top:55px;
-    left:20px;
-    right:20px;
-    height:170px;
-    border-radius:18px;
-    background:#f3f4f6 center/cover no-repeat;
-    border:2px solid #e5e7eb;
-}
+    .art {
+      position: absolute;
+      top: 55px;
+      left: 20px;
+      right: 20px;
+      height: 170px;
+      border-radius: 18px;
+      background: #f3f4f6 center/cover no-repeat;
+      border: 2px solid #e5e7eb;
+    }
 
-.big-number{
-    position:absolute;
+    .big-number {
+      position: absolute;
+      left: 50%;
+      top: 72%;
+      transform: translate(-50%, -50%);
+      font-size: 140px;
+      line-height: 1;
+      font-weight: 900;
+      color: var(--cor-texto); /* Cor dinâmica */
+      text-shadow: 0 3px 0 rgba(0,0,0,.08);
+    }
 
-    /* Centralização perfeita */
-    left:50%;
-    top:72%;
-    transform:translate(-50%, -50%);
+    .name {
+      position: absolute;
+      bottom: 18px;
+      left: 18px;
+      right: 18px;
+      text-align: center;
+      font-size: 22px;
+      font-weight: bold;
+      color: #333;
+    }
 
-    font-size:140px;
-    line-height:1;
-    font-family:'Arial', sans-serif;
-    font-weight:900;
-    color:#ff3f8e;
-    text-shadow:0 3px 0 rgba(0,0,0,.08);
-}
+    .symbol {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      width: 46px;
+      height: 46px;
+      border-radius: 12px;
+      background: #fff;
+      border: 2px solid #ffd166;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+      font-weight: bold;
+      color: var(--cor-principal); /* Cor dinâmica */
+    }
 
-.name{
-    position:absolute;
-    bottom:18px;
-    left:18px;
-    right:18px;
-    text-align:center;
-    font-size:22px;
-    font-weight:bold;
-}
-
-.symbol{
-    position:absolute;
-    top:15px;
-    right:15px;
-    width:46px;
-    height:46px;
-    border-radius:12px;
-    background:#fff;
-    border:2px solid #ffd166;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-size:26px;
-    font-weight:bold;
-    color:#ff7aa2;
-}
-    /* -------------------------------------------
-       SEU CÓDIGO DO VERSO (ESTILIZADO)
-    ------------------------------------------- */
+    /* O VERSO DA CARTA */
     .card-back {
       background-color: #111;
-      transform: rotateY(180deg); /* O verso já começa "virado" 180 graus de costas */
+      transform: rotateY(180deg);
       border: 8px solid #34495e;
     }
 
@@ -166,7 +229,6 @@
       position: absolute;
       width: 100%;
       height: 100%;
-      /* Criando um fundo desenhado com CSS */
       background: repeating-linear-gradient(
         45deg,
         #2c3e50,
@@ -180,7 +242,6 @@
       position: absolute;
       width: 100%;
       height: 100%;
-      /* Sombra interna para dar volume */
       box-shadow: inset 0 0 50px rgba(0,0,0,0.8);
     }
 
@@ -189,75 +250,125 @@
       font-size: 100px;
       color: #f1c40f;
       text-shadow: 2px 2px 10px rgba(0,0,0,0.8);
-      z-index: 2; /* Garante que o símbolo fique acima do fundo */
+      z-index: 2;
     }
   </style>
 </head>
 <body>
 
-  <!-- Os botões que antes eram apenas texto -->
-  <div class="controles">
-    <button onclick="virarCarta()">Mostrar Verso</button>
-    <button onclick="exportarPNG()">Exportar PNG</button>
-  </div>
+  <!-- PAINEL LATERAL DE EDIÇÃO -->
+  <div class="painel-lateral">
+    <h2>Editar Carta</h2>
+    
+    <div class="grupo-input">
+      <label for="inputNome">Nome do Personagem:</label>
+      <input type="text" id="inputNome" value="ZOLTAN" oninput="atualizarCarta()">
+    </div>
 
-  <!-- A cena 3D -->
-  <div class="cena-carta">
-    <div class="carta" id="cartaContainer">
-      
-      <!-- Lado da Frente -->
-    <div class="face card-front" id="front">
-    <div class="border-pattern"></div>
+    <div class="grupo-input">
+      <label for="inputNumero">Número:</label>
+      <input type="number" id="inputNumero" value="2" oninput="atualizarCarta()">
+    </div>
 
-    <!-- Símbolo no canto -->
-    <div class="symbol" id="symbol">+</div>
+    <div class="grupo-input">
+      <label for="inputSimbolo">Símbolo (Texto ou Emoji):</label>
+      <input type="text" id="inputSimbolo" value="+" maxlength="3" oninput="atualizarCarta()">
+    </div>
 
-    <!-- Área da imagem -->
-    <div class="art" id="frontArt"></div>
+    <div class="grupo-input">
+      <label for="inputCor">Cor Principal:</label>
+      <input type="color" id="inputCor" value="#ff7aa2" oninput="atualizarCarta()">
+    </div>
 
-    <!-- Número centralizado -->
-    <div class="big-number" id="number">2</div>
-
-    <!-- Nome do personagem -->
-    <div class="name" id="name">ZOLTAN</div>
-</div>
-      <!-- O SEU CÓDIGO DO VERSO -->
-      <div class="face card-back" id="back">
-        <div class="back-bg" id="backArt"></div>
-        <div class="back-overlay"></div>
-        <div class="back-symbol">+</div>
-      </div>
-
+    <div class="grupo-input">
+      <label for="inputFonte">Fonte:</label>
+      <select id="inputFonte" onchange="atualizarCarta()">
+        <option value="'Arial', sans-serif">Arial</option>
+        <option value="'Courier New', Courier, monospace">Courier New</option>
+        <option value="'Times New Roman', Times, serif">Times New Roman</option>
+        <option value="'Impact', sans-serif">Impact</option>
+        <option value="'Comic Sans MS', cursive, sans-serif">Comic Sans</option>
+      </select>
     </div>
   </div>
 
-  <script>
-    // Função para virar a carta
-  function virarCarta() {
-  const carta = document.getElementById('cartaContainer');
-  carta.classList.toggle('virada');
-  
-  // Muda o texto do botão dependendo do lado
-  const botaoVirar = document.querySelector('button[onclick="virarCarta()"]');
-  if (carta.classList.contains('virada')) {
-    botaoVirar.innerText = "Mostrar Frente";
-  } else {
-    botaoVirar.innerText = "Mostrar Verso";
-  }
-}
+  <!-- ÁREA DA CARTA E BOTÕES -->
+  <div class="area-carta">
+    <div class="controles">
+      <button onclick="virarCarta()">Mostrar Verso</button>
+      <button onclick="exportarPNG()">Exportar PNG</button>
+    </div>
 
-    // Função para baixar a imagem usando a biblioteca html2canvas
+    <div class="cena-carta">
+      <div class="carta" id="cartaContainer">
+        
+        <!-- Lado da Frente -->
+        <div class="face card-front" id="front">
+          <div class="border-pattern"></div>
+          <div class="symbol" id="symbol">+</div>
+          <div class="art" id="frontArt"></div>
+          <div class="big-number" id="number">2</div>
+          <div class="name" id="name">ZOLTAN</div>
+        </div>
+        
+        <!-- Lado do Verso -->
+        <div class="face card-back" id="back">
+          <div class="back-bg" id="backArt"></div>
+          <div class="back-overlay"></div>
+          <div class="back-symbol">+</div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- SCRIPTS -->
+  <script>
+    // Função que atualiza a carta em tempo real conforme o painel é alterado
+    function atualizarCarta() {
+      // Atualiza os textos
+      document.getElementById('name').innerText = document.getElementById('inputNome').value;
+      document.getElementById('number').innerText = document.getElementById('inputNumero').value;
+      document.getElementById('symbol').innerText = document.getElementById('inputSimbolo').value;
+
+      // Atualiza a cor (usando as Variáveis CSS)
+      const cor = document.getElementById('inputCor').value;
+      document.documentElement.style.setProperty('--cor-principal', cor);
+      document.documentElement.style.setProperty('--cor-texto', cor);
+
+      // Atualiza a fonte
+      const fonte = document.getElementById('inputFonte').value;
+      document.documentElement.style.setProperty('--fonte-carta', fonte);
+    }
+
+    // Função para virar a carta e trocar o texto do botão
+    function virarCarta() {
+      const carta = document.getElementById('cartaContainer');
+      carta.classList.toggle('virada');
+      
+      const botaoVirar = document.querySelector('.controles button:first-child');
+      if (carta.classList.contains('virada')) {
+        botaoVirar.innerText = "Mostrar Frente";
+      } else {
+        botaoVirar.innerText = "Mostrar Verso";
+      }
+    }
+
+    // Função corrigida: Baixa a frente ou o verso dependendo de qual lado está sendo visto
     function exportarPNG() {
-      // Capturamos especificamente a div com id="back"
-      const elementoParaBaixar = document.getElementById('back');
+      const cartaContainer = document.getElementById('cartaContainer');
+      const estaVirada = cartaContainer.classList.contains('virada');
+      
+      // Escolhe a div certa para exportar ('back' ou 'front')
+      const idParaBaixar = estaVirada ? 'back' : 'front';
+      const elementoParaBaixar = document.getElementById(idParaBaixar);
       
       html2canvas(elementoParaBaixar, {
-        backgroundColor: null, // Mantém o fundo transparente se houver bordas arredondadas
-        scale: 2 // Aumenta a resolução da imagem baixada
+        backgroundColor: null,
+        scale: 2 // Exporta em alta resolução
       }).then(canvas => {
-        // Cria um link temporário e simula o clique para baixar
         const link = document.createElement('a');
-        link.download = 'verso-da-carta.png';
+        link.download = estaVirada ? 'verso-da-carta.png' : 'frente-da-carta.png';
         link.href = canvas.toDataURL('image/png');
         link.click();
       });
