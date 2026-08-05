@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <title>Minha Carta Interativa</title>
   
-  <!-- Importando a biblioteca html2canvas para conseguir exportar o PNG -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <!-- Importando a biblioteca html-to-image (suporta degradê) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.11/html-to-image.min.js"></script>
 
   <style>
     /* -------------------------------------------
@@ -186,8 +186,20 @@
       font-size: 140px;
       line-height: 1;
       font-weight: 900;
-      color: var(--cor-texto); /* Cor dinâmica */
-      text-shadow: 0 3px 0 rgba(0,0,0,.08);
+      font-family: var(--fonte-carta);
+
+      /* Degradê igual ao estilo da foto */
+      background: linear-gradient(
+          45deg,
+          #ff006e,
+          #ffbe0b,
+          #70e000,
+          #3a86ff
+      );
+
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
 
     .name {
@@ -290,6 +302,16 @@
         <option value="'Comic Sans MS', cursive, sans-serif">Comic Sans</option>
       </select>
     </div>
+    
+    <div class="grupo-input">
+      <label>Arte da Frente</label>
+      <input type="file" id="uploadFrente" accept="image/*" onchange="carregarImagem(this, 'frontArt')">
+    </div>
+
+    <div class="grupo-input">
+      <label>Arte do Verso</label>
+      <input type="file" id="uploadVerso" accept="image/*" onchange="carregarImagem(this, 'backArt')">
+    </div>
   </div>
 
   <!-- ÁREA DA CARTA E BOTÕES -->
@@ -354,7 +376,7 @@
       }
     }
 
-    // Função corrigida: Baixa a frente ou o verso dependendo de qual lado está sendo visto
+    // Função para baixar a imagem usando html-to-image (suporta degradê no texto perfeitamente)
     function exportarPNG() {
       const cartaContainer = document.getElementById('cartaContainer');
       const estaVirada = cartaContainer.classList.contains('virada');
@@ -363,15 +385,32 @@
       const idParaBaixar = estaVirada ? 'back' : 'front';
       const elementoParaBaixar = document.getElementById(idParaBaixar);
       
-      html2canvas(elementoParaBaixar, {
-        backgroundColor: null,
-        scale: 2 // Exporta em alta resolução
-      }).then(canvas => {
-        const link = document.createElement('a');
-        link.download = estaVirada ? 'verso-da-carta.png' : 'frente-da-carta.png';
-        link.href = canvas.toDataURL('image/png');
-        link.click();
-      });
+      // htmlToImage tira a foto com suporte a recursos CSS avançados
+      htmlToImage.toPng(elementoParaBaixar, { pixelRatio: 4 }) // pixelRatio: 2 garante alta resolução
+        .then(function (dataUrl) {
+          const link = document.createElement('a');
+          link.download = estaVirada ? 'verso-da-carta.png' : 'frente-da-carta.png';
+          link.href = dataUrl;
+          link.click();
+        })
+        .catch(function (error) {
+          console.error('Erro ao gerar a imagem:', error);
+          alert('Houve um erro ao exportar a carta.');
+        });
+    }
+
+    // Função para carregar as imagens na carta
+    function carregarImagem(input, idDestino) {
+      const file = input.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+          document.getElementById(idDestino).style.backgroundImage = `url('${e.target.result}')`;
+          document.getElementById(idDestino).style.backgroundSize = 'cover';
+          document.getElementById(idDestino).style.backgroundPosition = 'center';
+      };
+      reader.readAsDataURL(file);
     }
   </script>
 </body>
