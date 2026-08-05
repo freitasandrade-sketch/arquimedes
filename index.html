@@ -233,10 +233,18 @@
 
   <script>
     // Função para virar a carta
-    function virarCarta() {
-      const carta = document.getElementById('cartaContainer');
-      carta.classList.toggle('virada');
-    }
+  function virarCarta() {
+  const carta = document.getElementById('cartaContainer');
+  carta.classList.toggle('virada');
+  
+  // Muda o texto do botão dependendo do lado
+  const botaoVirar = document.querySelector('button[onclick="virarCarta()"]');
+  if (carta.classList.contains('virada')) {
+    botaoVirar.innerText = "Mostrar Frente";
+  } else {
+    botaoVirar.innerText = "Mostrar Verso";
+  }
+}
 
     // Função para baixar a imagem usando a biblioteca html2canvas
     function exportarPNG() {
