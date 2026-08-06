@@ -1,36 +1,27 @@
-// 1. O BANCO DE DADOS (ARRAY) - Atualizado para usar 'formula'
 let cartas = [
   {
-    nome: "ANA",
-    numero: 1,
-    formula: "+",
+    numero: "1",
     cor: "#ff7aa2",
     fonte: "'Arial', sans-serif",
     moldura: "flores",
-    frente: null,
     verso: null
   },
   {
-    nome: "BRUNO",
-    numero: 2,
-    formula: "-",
+    numero: "\\frac{1}{2}",
     cor: "#3a86ff",
     fonte: "'Comic Sans MS', cursive, sans-serif",
     moldura: "estrelas",
-    frente: null,
     verso: null
   }
 ];
 
 let cartaAtual = 0;
 
-// Inicia o sistema
 function inicializar() {
   renderizarListaCartas();
   selecionarCarta(0);
 }
 
-// 2. GERENCIAMENTO DA LISTA (BARALHO)
 function renderizarListaCartas() {
   const lista = document.getElementById('listaCartas');
   lista.innerHTML = ''; 
@@ -38,7 +29,8 @@ function renderizarListaCartas() {
   cartas.forEach((carta, index) => {
     const div = document.createElement('div');
     div.className = 'miniatura-carta' + (index === cartaAtual ? ' ativa' : '');
-    div.innerHTML = `<strong>${carta.numero}</strong> • ${carta.nome || 'Sem Nome'}`;
+    // Como tiramos o nome, a miniatura mostra o conteúdo do número/fórmula
+    div.innerHTML = `<strong>Carta</strong> • ${carta.numero}`;
     div.onclick = () => selecionarCarta(index);
     lista.appendChild(div);
   });
@@ -46,8 +38,11 @@ function renderizarListaCartas() {
 
 function adicionarCarta() {
   const nova = {
-    nome: "NOVA", numero: cartas.length + 1, formula: "?", cor: "#06d6a0",
-    fonte: "'Arial', sans-serif", moldura: "geometria", frente: null, verso: null
+    numero: "?", 
+    cor: "#06d6a0",
+    fonte: "'Arial', sans-serif", 
+    moldura: "geometria", 
+    verso: null
   };
   cartas.push(nova);
   selecionarCarta(cartas.length - 1);
@@ -55,7 +50,6 @@ function adicionarCarta() {
 
 function duplicarCarta() {
   const copia = JSON.parse(JSON.stringify(cartas[cartaAtual]));
-  copia.nome = copia.nome + " (Cópia)";
   cartas.push(copia);
   selecionarCarta(cartas.length - 1);
 }
@@ -65,7 +59,7 @@ function excluirCarta() {
     alert("O baralho precisa ter pelo menos uma carta!");
     return;
   }
-  const confirmacao = confirm(`Tem certeza que deseja excluir a carta "${cartas[cartaAtual].nome}"?`);
+  const confirmacao = confirm("Tem certeza que deseja excluir esta carta?");
   if (!confirmacao) return;
 
   cartas.splice(cartaAtual, 1);
@@ -75,21 +69,14 @@ function excluirCarta() {
   selecionarCarta(cartaAtual);
 }
 
-// 3. SELEÇÃO E EDIÇÃO NO PAINEL
 function selecionarCarta(index) {
   cartaAtual = index;
   const carta = cartas[cartaAtual];
 
-  // Preenche os Inputs
-  document.getElementById('inputNome').value = carta.nome;
   document.getElementById('inputNumero').value = carta.numero;
-  document.getElementById('inputFormula').value = carta.formula;
   document.getElementById('inputCor').value = carta.cor;
   document.getElementById('inputFonte').value = carta.fonte;
   document.getElementById('inputMoldura').value = carta.moldura;
-  
-  // Limpa os campos de arquivo
-  document.getElementById('uploadFrente').value = "";
   document.getElementById('uploadVerso').value = "";
 
   renderizarListaCartas(); 
@@ -99,9 +86,7 @@ function selecionarCarta(index) {
 function salvarAlteracoes() {
   const carta = cartas[cartaAtual];
   
-  carta.nome = document.getElementById('inputNome').value;
   carta.numero = document.getElementById('inputNumero').value;
-  carta.formula = document.getElementById('inputFormula').value;
   carta.cor = document.getElementById('inputCor').value;
   carta.fonte = document.getElementById('inputFonte').value;
   carta.moldura = document.getElementById('inputMoldura').value;
@@ -122,33 +107,16 @@ function carregarImagemBase64(input, face) {
   reader.readAsDataURL(file);
 }
 
-// 4. ATUALIZAÇÃO VISUAL (RENDER)
 function aplicarCartaNoDOM(carta) {
-  document.getElementById('name').innerText = carta.nome;
-  document.getElementById('number').innerText = carta.numero;
-
-  // Lógica de Renderização do KaTeX
-  const formula = carta.formula || "+";
+  // Lógica de Renderização do KaTeX diretamente no Número
+  const conteudo = String(carta.numero || "");
   try {
-      // Símbolo pequeno da frente (inline)
-      katex.render(formula,
-          document.getElementById("formulaPreview"),
-          {
-              throwOnError: false,
-              displayMode: false
-          });
-      
-      // Símbolo grande do verso (display mode)
-      katex.render(formula,
-          document.getElementById("backSymbol"),
-          {
-              throwOnError: false,
-              displayMode: true
-          });
-
+      katex.render(conteudo, document.getElementById("number"), {
+          throwOnError: false,
+          displayMode: true 
+      });
   } catch (e) {
-      document.getElementById("formulaPreview").textContent = formula;
-      document.getElementById("backSymbol").textContent = formula;
+      document.getElementById("number").textContent = conteudo;
   }
 
   // Atualiza Estilos
@@ -158,9 +126,6 @@ function aplicarCartaNoDOM(carta) {
 
   document.getElementById('borderPattern').className = 'border-pattern ' + carta.moldura;
 
-  const frontArt = document.getElementById('frontArt');
-  frontArt.style.backgroundImage = carta.frente ? `url('${carta.frente}')` : 'none';
-  
   const backArt = document.getElementById('backArt');
   backArt.style.backgroundImage = carta.verso ? `url('${carta.verso}')` : 'none';
 }
@@ -177,7 +142,6 @@ function virarCarta() {
   }
 }
 
-// 5. EXPORTAÇÃO INDIVIDUAL (1 Carta)
 function exportarPNG() {
   const cartaContainer = document.getElementById('cartaContainer');
   const estaVirada = cartaContainer.classList.contains('virada');
@@ -190,7 +154,7 @@ function exportarPNG() {
     .then((dataUrl) => {
       elemento.style.transform = transformOriginal;
       const link = document.createElement('a');
-      link.download = `Carta_${cartas[cartaAtual].numero}_${cartas[cartaAtual].nome}.png`;
+      link.download = `Carta_${cartas[cartaAtual].numero}.png`;
       link.href = dataUrl;
       link.click();
     }).catch(e => {
@@ -199,7 +163,6 @@ function exportarPNG() {
     });
 }
 
-// 6. O LOOP MÁGICO DE EXPORTAÇÃO A4
 async function exportarBaralhoA4() {
   const btn = document.getElementById('btnExportarA4');
   btn.innerText = "Gerando Baralho... Aguarde";
