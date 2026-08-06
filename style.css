@@ -1,0 +1,187 @@
+
+    :root {
+      --cor-principal: #ff7aa2;
+      --cor-texto: #ff3f8e;
+      --fonte-carta: 'Arial', sans-serif;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      background-color: #2c3e50;
+      margin: 0;
+      padding: 30px;
+      gap: 30px; 
+    }
+
+    /* -------------------------------------------
+       PAINEL DE BARALHO (LISTA DE CARTAS)
+    ------------------------------------------- */
+    .painel-baralho {
+      background-color: #34495e;
+      padding: 20px;
+      border-radius: 12px;
+      width: 240px;
+      color: white;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .painel-baralho h2 {
+      margin-top: 0;
+      font-size: 20px;
+      text-align: center;
+      border-bottom: 2px solid #2c3e50;
+      padding-bottom: 10px;
+    }
+
+    .botoes-baralho {
+      display: flex;
+      flex-wrap: wrap; /* Permite que os botões se ajustem */
+      gap: 8px;
+      margin-bottom: 15px;
+    }
+    
+    .botoes-baralho button {
+      flex: 1 1 30%; /* Ajusta para caber 3 botões */
+      padding: 8px 4px;
+      font-size: 12px;
+    }
+
+    .btn-excluir {
+      background-color: #e74c3c;
+      color: white;
+    }
+
+    .btn-excluir:hover {
+      background-color: #c0392b;
+    }
+
+    .lista-cartas {
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding-right: 5px;
+    }
+
+    .miniatura-carta {
+      background: #2c3e50;
+      padding: 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: 0.2s;
+      font-size: 14px;
+    }
+    
+    .miniatura-carta:hover {
+      background: #3e5b76;
+    }
+
+    .miniatura-carta.ativa {
+      border-color: #f1c40f;
+      background: #1a252f;
+    }
+
+    .miniatura-carta strong {
+      color: #f1c40f;
+    }
+
+    /* -------------------------------------------
+       PAINEL LATERAL (EDITOR)
+    ------------------------------------------- */
+    .painel-lateral {
+      background-color: #34495e;
+      padding: 20px;
+      border-radius: 12px;
+      width: 300px;
+      color: white;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .painel-lateral h2 {
+      margin-top: 0;
+      font-size: 20px;
+      text-align: center;
+      border-bottom: 2px solid #2c3e50;
+      padding-bottom: 10px;
+    }
+
+    .grupo-input { margin-bottom: 15px; }
+    .grupo-input label { display: block; margin-bottom: 5px; font-size: 14px; font-weight: bold; }
+    .grupo-input input[type="text"], .grupo-input input[type="number"], .grupo-input select {
+      width: 100%; padding: 8px; border-radius: 6px; border: none; box-sizing: border-box; font-family: inherit;
+    }
+    .grupo-input input[type="color"] {
+      width: 100%; height: 40px; border: none; border-radius: 6px; cursor: pointer; background: none;
+    }
+
+    /* -------------------------------------------
+       ÁREA DA CARTA E BOTÕES PRINCIPAIS
+    ------------------------------------------- */
+    .area-carta {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .controles {
+      margin-bottom: 20px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      max-width: 400px;
+    }
+    button {
+      padding: 10px 15px;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+      border: none;
+      border-radius: 8px;
+      background-color: #f1c40f;
+      color: #333;
+      transition: 0.2s;
+    }
+    button:hover { background-color: #f39c12; }
+    button:disabled { background-color: #7f8c8d; cursor: not-allowed; }
+
+    /* ESTRUTURA 3D DA CARTA */
+    .cena-carta { width: 250px; height: 350px; perspective: 1000px; }
+    .carta { width: 100%; height: 100%; position: relative; transition: transform 0.6s; transform-style: preserve-3d; }
+    .carta.virada { transform: rotateY(180deg); }
+    .face {
+      position: absolute; width: 100%; height: 100%; backface-visibility: hidden;
+      border-radius: 15px; box-shadow: 0 10px 20px rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; overflow: hidden;
+    }
+
+    .card-front { background: #ffffff; border: 8px solid var(--cor-principal); position: relative; font-family: var(--fonte-carta); }
+
+    /* MOLDURAS DINÂMICAS */
+    .border-pattern { position: absolute; inset: 0; pointer-events: none; }
+    .border-pattern::before { content: ""; position: absolute; inset: 0; }
+    .border-pattern.flores::before { background: radial-gradient(circle at 12% 10%, #ff4d8d 0 10px, transparent 11px), radial-gradient(circle at 88% 14%, #ffd166 0 10px, transparent 11px), radial-gradient(circle at 18% 88%, #06d6a0 0 10px, transparent 11px), radial-gradient(circle at 84% 84%, #118ab2 0 10px, transparent 11px), radial-gradient(circle at 50% 8%, #ff9f1c 0 8px, transparent 9px), radial-gradient(circle at 8% 50%, #8338ec 0 8px, transparent 9px), radial-gradient(circle at 92% 50%, #ef476f 0 8px, transparent 9px), radial-gradient(circle at 50% 92%, #3a86ff 0 8px, transparent 9px); }
+    .border-pattern.estrelas::before { background: radial-gradient(circle, #ffd700 0 2px, transparent 3px) 10px 20px/40px 40px, radial-gradient(circle, #fff176 0 2px, transparent 3px) 25px 5px/50px 50px, radial-gradient(circle, #ffeb3b 0 3px, transparent 4px) 5px 35px/60px 60px; }
+    .border-pattern.confetes::before { background: radial-gradient(circle, #ff006e 0 4px, transparent 5px) 0 0/35px 35px, radial-gradient(circle, #8338ec 0 4px, transparent 5px) 18px 10px/45px 45px, radial-gradient(circle, #3a86ff 0 4px, transparent 5px) 8px 22px/50px 50px, radial-gradient(circle, #06d6a0 0 4px, transparent 5px) 25px 30px/55px 55px, radial-gradient(circle, #ffbe0b 0 4px, transparent 5px) 12px 40px/60px 60px; }
+    .border-pattern.geometria::before { background: repeating-linear-gradient(45deg, rgba(255,0,110,0.18), rgba(255,0,110,0.18) 12px, transparent 12px, transparent 24px), repeating-linear-gradient(-45deg, rgba(58,134,255,0.16), rgba(58,134,255,0.16) 12px, transparent 12px, transparent 24px); }
+    .border-pattern.espaco::before { background: radial-gradient(circle, white 0 1px, transparent 2px) 0 0/28px 28px, radial-gradient(circle, #90caf9 0 1px, transparent 2px) 14px 10px/34px 34px, radial-gradient(circle, #ce93d8 0 1px, transparent 2px) 6px 22px/40px 40px, radial-gradient(circle at 80% 20%, rgba(255,255,255,.25) 0 18px, transparent 19px), radial-gradient(circle at 20% 80%, rgba(144,202,249,.18) 0 22px, transparent 23px); }
+
+    /* ELEMENTOS DA CARTA */
+    .art { position: absolute; top: 55px; left: 20px; right: 20px; height: 170px; border-radius: 18px; background: #f3f4f6 center/cover no-repeat; border: 2px solid #e5e7eb; }
+    .big-number { position: absolute; left: 50%; top: 72%; transform: translate(-50%, -50%); font-size: 140px; line-height: 1; font-weight: 900; background: linear-gradient(45deg, #ff006e, #ffbe0b, #70e000, #3a86ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .name { position: absolute; bottom: 18px; left: 18px; right: 18px; text-align: center; font-size: 22px; font-weight: bold; color: #333; text-transform: uppercase; }
+    .symbol { position: absolute; top: 15px; right: 15px; width: 46px; height: 46px; border-radius: 12px; background: #fff; border: 2px solid #ffd166; display: flex; align-items: center; justify-content: center; font-size: 26px; font-weight: bold; color: var(--cor-principal); }
+
+    /* VERSO */
+    .card-back { background-color: #111; transform: rotateY(180deg); border: 8px solid #34495e; }
+    .back-bg { position: absolute; width: 100%; height: 100%; background: repeating-linear-gradient(45deg, #2c3e50, #2c3e50 10px, #34495e 10px, #34495e 20px); background-size: cover; background-position: center;}
+    .back-overlay { position: absolute; width: 100%; height: 100%; box-shadow: inset 0 0 50px rgba(0,0,0,0.8); }
+    .back-symbol { position: relative; font-size: 100px; color: #f1c40f; text-shadow: 2px 2px 10px rgba(0,0,0,0.8); z-index: 2; }
