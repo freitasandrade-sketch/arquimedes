@@ -31,7 +31,16 @@
       <label for="inputNome">Nome:</label>
       <input type="text" id="inputNome" oninput="salvarAlteracoes()">
     </div>
-
+<div class="grupo-input">
+  <label for="inputFonte">Fonte:</label>
+  <select id="inputFonte" onchange="salvarAlteracoes()">
+    <option value="'Arial', sans-serif">Arial</option>
+    <option value="'Courier New', Courier, monospace">Courier New</option>
+    <option value="'Times New Roman', Times, serif">Times New Roman</option>
+    <option value="'Impact', sans-serif">Impact</option>
+    <option value="'Comic Sans MS', cursive, sans-serif">Comic Sans</option>
+  </select>
+</div>
     <div class="grupo-input">
       <label for="inputNumero">Número:</label>
       <input type="number" id="inputNumero" oninput="salvarAlteracoes()">
