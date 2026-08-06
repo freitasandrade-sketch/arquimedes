@@ -3,10 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <title>Editor de Baralhos Matemáticos</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.11/html-to-image.min.js"></script>
-<script src="script.js"></script>
-<link rel="stylesheet" href="style.css">
   
+  <!-- Biblioteca para exportação em imagem -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.11/html-to-image.min.js"></script>
+  
+  <!-- Integração KaTeX -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+
+  <script src="script.js"></script>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body onload="inicializar()">
 
@@ -31,14 +37,16 @@
       <label for="inputNome">Nome:</label>
       <input type="text" id="inputNome" oninput="salvarAlteracoes()">
     </div>
+
     <div class="grupo-input">
       <label for="inputNumero">Número:</label>
       <input type="number" id="inputNumero" oninput="salvarAlteracoes()">
     </div>
 
+    <!-- Novo Input para Fórmulas LaTeX -->
     <div class="grupo-input">
-      <label for="inputSimbolo">Símbolo / Operador:</label>
-      <input type="text" id="inputSimbolo" maxlength="3" oninput="salvarAlteracoes()">
+      <label for="inputFormula">Expressão Matemática (LaTeX):</label>
+      <input type="text" id="inputFormula" value="+" oninput="salvarAlteracoes()">
     </div>
 
     <div class="grupo-input">
@@ -92,7 +100,12 @@
         <!-- Lado da Frente -->
         <div class="face card-front" id="front">
           <div class="border-pattern flores" id="borderPattern"></div>
-          <div class="symbol" id="symbol">+</div>
+          
+          <!-- Elemento do Símbolo Atualizado -->
+          <div class="symbol" id="symbol">
+            <span id="formulaPreview">+</span>
+          </div>
+          
           <div class="art" id="frontArt"></div>
           <div class="big-number" id="number">1</div>
           <div class="name" id="name">ANA</div>
@@ -101,14 +114,13 @@
         <div class="face card-back" id="back">
           <div class="back-bg" id="backArt"></div>
           <div class="back-overlay"></div>
+          
+          <!-- Elemento do Verso -->
           <div class="back-symbol" id="backSymbol">+</div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- SCRIPTS E LÓGICA DO SISTEMA -->
-  <script>
-  </script>
 </body>
 </html>
