@@ -174,7 +174,7 @@ button:disabled { background-color: #7f8c8d; cursor: not-allowed; }
 .border-pattern.espaco::before { background: radial-gradient(circle, white 0 1px, transparent 2px) 0 0/28px 28px, radial-gradient(circle, #90caf9 0 1px, transparent 2px) 14px 10px/34px 34px, radial-gradient(circle, #ce93d8 0 1px, transparent 2px) 6px 22px/40px 40px, radial-gradient(circle at 80% 20%, rgba(255,255,255,.25) 0 18px, transparent 19px), radial-gradient(circle at 20% 80%, rgba(144,202,249,.18) 0 22px, transparent 23px); }
 
 /* ELEMENTOS DA CARTA */
-.big-number { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); font-size: 100px; line-height: 1; font-weight: 900; background: linear-gradient(45deg, #ff006e, #ffbe0b, #70e000, #3a86ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; text-align: center; width: 100%;}
+.big-number { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); font-size: 200px; line-height: 1; font-weight: 900; background: linear-gradient(45deg, #ff006e, #ffbe0b, #70e000, #3a86ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; text-align: center; width: 100%;}
 
 /* VERSO */
 .card-back { background-color: #111; transform: rotateY(180deg); border: 8px solid #34495e; }
