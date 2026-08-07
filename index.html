@@ -26,10 +26,43 @@
 
   <div class="painel-lateral">
     <h2>Editar Carta</h2>
+    
+    <div class="grupo-input">
+      <label for="inputLayout">Tipo de Carta (Layout):</label>
+      <select id="inputLayout" onchange="salvarAlteracoes()">
+        <option value="padrao">Padrão (Personagem/Completa)</option>
+        <option value="numero-gigante">Apenas Número Central</option>
+        <option value="operador">Operador Matemático</option>
+      </select>
+    </div>
 
     <div class="grupo-input">
-      <label for="inputNumero">Conteúdo / Número (LaTeX):</label>
+      <label for="inputNome">Nome:</label>
+      <input type="text" id="inputNome" oninput="salvarAlteracoes()">
+    </div>
+
+    <div class="grupo-input">
+      <label for="inputNumero">Número:</label>
       <input type="text" id="inputNumero" oninput="salvarAlteracoes()">
+    </div>
+
+    <!-- NOVO: Seletor de Estilo do Número -->
+    <div class="grupo-input">
+      <label for="inputEstiloNumero">Estilo do Número:</label>
+      <select id="inputEstiloNumero" onchange="salvarAlteracoes()">
+        <option value="padrao">Padrão (Gradiente Suave)</option>
+<option value="vitral">Vitral</option>
+       <option value="Geométrico"> Geométrico </option>
+<option value="colorblock">colorblock (Colorido com Borda)</option>
+<option value="vitral2">Vitral (Colorido com Borda)</option>
+
+
+      </select>
+    </div>
+
+    <div class="grupo-input">
+      <label for="inputFormula">Expressão Matemática (LaTeX):</label>
+      <input type="text" id="inputFormula" value="+" oninput="salvarAlteracoes()">
     </div>
 
     <div class="grupo-input">
@@ -58,6 +91,11 @@
         <option value="espaco">Espaço</option>
       </select>
     </div>
+    
+    <div class="grupo-input">
+      <label>Arte da Frente (Imagem)</label>
+      <input type="file" id="uploadFrente" accept="image/*" onchange="carregarImagemBase64(this, 'frente')">
+    </div>
 
     <div class="grupo-input">
       <label>Arte do Verso (Imagem)</label>
@@ -74,21 +112,24 @@
 
     <div class="cena-carta">
       <div class="carta" id="cartaContainer">
-        
-        <!-- Lado da Frente Enxuto -->
         <div class="face card-front" id="front">
           <div class="border-pattern flores" id="borderPattern"></div>
           
-          <!-- O Número agora é o elemento central renderizado via KaTeX -->
-          <div class="big-number" id="number">1</div>
+          <div class="symbol" id="symbol">
+            <span id="formulaPreview">+</span>
+          </div>
+          
+          <div class="art" id="frontArt"></div>
+          
+          <!-- O ID number recebe dinamicamente as classes de estilo -->
+          <div class="big-number estilo-padrao" id="number">1</div>
+          <div class="name" id="name">ANA</div>
         </div>
-
-        <!-- Lado do Verso Enxuto -->
         <div class="face card-back" id="back">
           <div class="back-bg" id="backArt"></div>
           <div class="back-overlay"></div>
+          <div class="back-symbol" id="backSymbol">+</div>
         </div>
-
       </div>
     </div>
   </div>

@@ -1,16 +1,38 @@
 let cartas = [
   {
-    numero: "1",
+    layout: "padrao",
+    nome: "ARQUIMEDES",
+    numero: 13,
+    estiloNumero: "padrao", // Nova propriedade
+    formula: "\\pi",
     cor: "#ff7aa2",
     fonte: "'Arial', sans-serif",
     moldura: "flores",
+    frente: null,
     verso: null
   },
   {
-    numero: "\\frac{1}{2}",
+    layout: "numero-gigante",
+    nome: "",
+    numero: 1,
+    estiloNumero: "vitral", // Testando o efeito vitral
+    formula: "",
     cor: "#3a86ff",
-    fonte: "'Comic Sans MS', cursive, sans-serif",
+    fonte: "'Arial', sans-serif",
     moldura: "estrelas",
+    frente: null,
+    verso: null
+  },
+  {
+    layout: "operador",
+    nome: "",
+    numero: "",
+    estiloNumero: "padrao",
+    formula: "+",
+    cor: "#06d6a0",
+    fonte: "'Arial', sans-serif",
+    moldura: "geometria",
+    frente: null,
     verso: null
   }
 ];
@@ -29,8 +51,8 @@ function renderizarListaCartas() {
   cartas.forEach((carta, index) => {
     const div = document.createElement('div');
     div.className = 'miniatura-carta' + (index === cartaAtual ? ' ativa' : '');
-    // Como tiramos o nome, a miniatura mostra o conteúdo do número/fórmula
-    div.innerHTML = `<strong>Carta</strong> • ${carta.numero}`;
+    let titulo = carta.layout === "padrao" ? carta.nome : (carta.layout === "numero-gigante" ? carta.numero : carta.formula);
+    div.innerHTML = `<strong>${index + 1}</strong> • ${titulo || 'Sem Título'}`;
     div.onclick = () => selecionarCarta(index);
     lista.appendChild(div);
   });
@@ -38,11 +60,8 @@ function renderizarListaCartas() {
 
 function adicionarCarta() {
   const nova = {
-    numero: "?", 
-    cor: "#06d6a0",
-    fonte: "'Arial', sans-serif", 
-    moldura: "geometria", 
-    verso: null
+    layout: "padrao", nome: "NOVA", numero: cartas.length + 1, estiloNumero: "padrao", formula: "?", cor: "#f1c40f",
+    fonte: "'Arial', sans-serif", moldura: "flores", frente: null, verso: null
   };
   cartas.push(nova);
   selecionarCarta(cartas.length - 1);
@@ -73,10 +92,19 @@ function selecionarCarta(index) {
   cartaAtual = index;
   const carta = cartas[cartaAtual];
 
+  document.getElementById('inputLayout').value = carta.layout;
+  document.getElementById('inputNome').value = carta.nome;
   document.getElementById('inputNumero').value = carta.numero;
+  
+  // Puxa o estilo do número (se for antigo e não tiver, assume "padrao")
+  document.getElementById('inputEstiloNumero').value = carta.estiloNumero || "padrao";
+  
+  document.getElementById('inputFormula').value = carta.formula;
   document.getElementById('inputCor').value = carta.cor;
   document.getElementById('inputFonte').value = carta.fonte;
   document.getElementById('inputMoldura').value = carta.moldura;
+  
+  document.getElementById('uploadFrente').value = "";
   document.getElementById('uploadVerso').value = "";
 
   renderizarListaCartas(); 
@@ -86,7 +114,14 @@ function selecionarCarta(index) {
 function salvarAlteracoes() {
   const carta = cartas[cartaAtual];
   
+  carta.layout = document.getElementById('inputLayout').value;
+  carta.nome = document.getElementById('inputNome').value;
   carta.numero = document.getElementById('inputNumero').value;
+  
+  // Salva a nova opção de estilo
+  carta.estiloNumero = document.getElementById('inputEstiloNumero').value;
+  
+  carta.formula = document.getElementById('inputFormula').value;
   carta.cor = document.getElementById('inputCor').value;
   carta.fonte = document.getElementById('inputFonte').value;
   carta.moldura = document.getElementById('inputMoldura').value;
@@ -98,7 +133,6 @@ function salvarAlteracoes() {
 function carregarImagemBase64(input, face) {
   const file = input.files[0];
   if (!file) return;
-
   const reader = new FileReader();
   reader.onload = function(e) {
     cartas[cartaAtual][face] = e.target.result; 
@@ -106,26 +140,38 @@ function carregarImagemBase64(input, face) {
   };
   reader.readAsDataURL(file);
 }
-
 function aplicarCartaNoDOM(carta) {
-  // Lógica de Renderização do KaTeX diretamente no Número
-  const conteudo = String(carta.numero || "");
+  document.getElementById('name').innerText = carta.nome;
+  document.getElementById('number').innerText = carta.numero;
+
+// APLICA O ESTILO DO NÚMERO E DAS EXPRESSÕES MATEMÁTICAS
+  const estilo = carta.estiloNumero || "padrao";
+  document.getElementById('number').className = `big-number estilo-${estilo}`;
+  document.getElementById('formulaPreview').className = `estilo-${estilo}`;
+  document.getElementById('backSymbol').className = `back-symbol estilo-${estilo}`;
+
+  // Renderização KaTeX
+  const formula = carta.formula || "";
   try {
-      katex.render(conteudo, document.getElementById("number"), {
-          throwOnError: false,
-          displayMode: true 
-      });
+      katex.render(formula, document.getElementById("formulaPreview"), { throwOnError: false, displayMode: false });
+      katex.render(formula, document.getElementById("backSymbol"), { throwOnError: false, displayMode: true });
   } catch (e) {
-      document.getElementById("number").textContent = conteudo;
+      document.getElementById("formulaPreview").textContent = formula;
+      document.getElementById("backSymbol").textContent = formula;
   }
 
-  // Atualiza Estilos
+  // ATUALIZAÇÃO DO LAYOUT E DA BORDA (Esta era a parte que estava faltando!)
+  const frontFace = document.getElementById('front');
+  frontFace.className = `face card-front layout-${carta.layout} borda-${estilo}`;
+
+  // Variáveis CSS
   document.documentElement.style.setProperty('--cor-principal', carta.cor);
   document.documentElement.style.setProperty('--cor-texto', carta.cor);
   document.documentElement.style.setProperty('--fonte-carta', carta.fonte);
-
   document.getElementById('borderPattern').className = 'border-pattern ' + carta.moldura;
 
+  const frontArt = document.getElementById('frontArt');
+  frontArt.style.backgroundImage = carta.frente ? `url('${carta.frente}')` : 'none';
   const backArt = document.getElementById('backArt');
   backArt.style.backgroundImage = carta.verso ? `url('${carta.verso}')` : 'none';
 }
@@ -133,7 +179,6 @@ function aplicarCartaNoDOM(carta) {
 function virarCarta() {
   const cartaElement = document.getElementById('cartaContainer');
   cartaElement.classList.toggle('virada');
-  
   const botaoVirar = document.querySelector('.controles button:first-child');
   if (cartaElement.classList.contains('virada')) {
     botaoVirar.innerText = "Mostrar Frente";
@@ -146,7 +191,6 @@ function exportarPNG() {
   const cartaContainer = document.getElementById('cartaContainer');
   const estaVirada = cartaContainer.classList.contains('virada');
   const elemento = document.getElementById(estaVirada ? 'back' : 'front');
-
   const transformOriginal = elemento.style.transform;
   elemento.style.transform = 'none';
 
@@ -154,7 +198,7 @@ function exportarPNG() {
     .then((dataUrl) => {
       elemento.style.transform = transformOriginal;
       const link = document.createElement('a');
-      link.download = `Carta_${cartas[cartaAtual].numero}.png`;
+      link.download = `Carta_${cartas[cartaAtual].numero || 'Op'}.png`;
       link.href = dataUrl;
       link.click();
     }).catch(e => {
@@ -169,13 +213,11 @@ async function exportarBaralhoA4() {
   btn.disabled = true;
 
   const indiceBackup = cartaAtual;
-  
   const cartaContainer = document.getElementById('cartaContainer');
   const estaVirada = cartaContainer.classList.contains('virada');
   const elemento = document.getElementById(estaVirada ? 'back' : 'front');
   const transformOriginal = elemento.style.transform;
   elemento.style.transform = 'none';
-
   const imagensGeradas = [];
 
   try {
@@ -186,19 +228,14 @@ async function exportarBaralhoA4() {
       const dataUrl = await htmlToImage.toPng(elemento, { pixelRatio: 4, cacheBust: true, backgroundColor: null });
       imagensGeradas.push(dataUrl);
     }
-
     const totalPaginas = Math.ceil(imagensGeradas.length / 9);
 
     for (let p = 0; p < totalPaginas; p++) {
       btn.innerText = `Montando Página ${p + 1}/${totalPaginas}...`;
-      
       const canvas = document.createElement('canvas');
-      canvas.width = 2480;
-      canvas.height = 3508;
+      canvas.width = 2480; canvas.height = 3508;
       const ctx = canvas.getContext('2d');
-      
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       const cardW = 744, cardH = 1039, escala = 0.95;
       const w = cardW * escala, h = cardH * escala;
@@ -207,12 +244,10 @@ async function exportarBaralhoA4() {
       for (let i = 0; i < 9; i++) {
         const indexGlobal = (p * 9) + i;
         if (indexGlobal >= imagensGeradas.length) break; 
-
         const linha = Math.floor(i / 3);
         const coluna = i % 3;
         const x = margemX + coluna * (w + espX);
         const y = margemY + linha * (h + espY);
-
         const imgObj = new Image();
         imgObj.src = imagensGeradas[indexGlobal];
         
@@ -229,7 +264,6 @@ async function exportarBaralhoA4() {
       link.download = `Folha_${p + 1}_${estaVirada ? 'Verso' : 'Frente'}.png`;
       link.href = canvas.toDataURL('image/png');
       link.click();
-      
       await new Promise(r => setTimeout(r, 600)); 
     }
   } catch (err) {
@@ -244,10 +278,7 @@ async function exportarBaralhoA4() {
 }
 
 function desenharMarcas(ctx, x, y, w, h) {
-  const t = 18;
-  ctx.strokeStyle = '#000';
-  ctx.lineWidth = 1;
-  ctx.beginPath();
+  const t = 18; ctx.strokeStyle = '#000'; ctx.lineWidth = 1; ctx.beginPath();
   ctx.moveTo(x - t, y); ctx.lineTo(x, y); ctx.lineTo(x, y - t); 
   ctx.moveTo(x + w + t, y); ctx.lineTo(x + w, y); ctx.lineTo(x + w, y - t); 
   ctx.moveTo(x - t, y + h); ctx.lineTo(x, y + h); ctx.lineTo(x, y + h + t); 
